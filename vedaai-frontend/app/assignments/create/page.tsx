@@ -149,38 +149,38 @@ export default function CreateAssignmentPage() {
 
   return (
     <DashboardLayout>
-        <div className="mb-8 px-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Assignment</h1>
-          <p className="text-sm text-gray-500">Set up a new assignment for your students</p>
+        <div className="mb-4 sm:mb-8 px-4 sm:px-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Assignment</h1>
+          <p className="text-xs sm:text-sm text-gray-500">Set up a new assignment for your students</p>
         </div>
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="max-w-4xl mx-auto p-4 sm:p-8">
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 ">
-          <div className="bg-[#FFFFFF80] rounded-xl p-8 border-white border">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Assignment Details</h2>
-            <p className="text-sm text-gray-500 mb-8">Basic information about your assignment</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8 ">
+          <div className="bg-[#FFFFFF80] rounded-xl p-4 sm:p-8 border-white border">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Assignment Details</h2>
+            <p className="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8">Basic information about your assignment</p>
 
-            <div className="mb-8">
-              <label className="block text-base font-semibold text-gray-900 mb-3">Title</label>
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Title</label>
               <input
                 type="text"
                 {...register('title')}
                 placeholder="e.g. Physics Laws of Motion"
-                className="w-full px-5 py-3 border border-gray-300 rounded-full outline-none text-sm hover:border-gray-400 transition-colors"
+                className="w-full px-4 sm:px-5 py-2 sm:py-3 border border-gray-300 rounded-full outline-none text-xs sm:text-sm hover:border-gray-400 transition-colors"
               />
               {errors.title && (
-                <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.title.message}</p>
               )}
-              <p className="text-sm text-gray-500 mt-2">Leave blank to auto-generate from file name</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-2">Leave blank to auto-generate from file name</p>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 className={`
-                  relative border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer bg-white
+                  relative border-2 border-dashed rounded-xl p-6 sm:p-12 text-center transition-all cursor-pointer bg-white
                   ${isDragging ? 'bg-gray-100' : 'border-gray-300 hover:border-gray-400 hover:bg-[#FFFFFF]'}
                 `}
               >
@@ -191,18 +191,18 @@ export default function CreateAssignmentPage() {
                   accept=".pdf,.txt"
                   id="file-upload"
                 />
-                <div className="space-y-4 flex flex-col items-center justify-center">
-                    <UploadCloud className="w-8 h-8 text-black" />
+                <div className="space-y-3 sm:space-y-4 flex flex-col items-center justify-center">
+                    <UploadCloud className="w-6 sm:w-8 h-6 sm:h-8 text-black" />
                   <div>
-                    <p className="text-base font-medium text-[#303030] mb-1">
+                    <p className="text-sm sm:text-base font-medium text-[#303030] mb-1">
                       {file ? file.name : 'Choose a file or drag & drop it here'}
                     </p>
-                    <p className="text-sm text-[#A9A9A9]">PDF, TXT upto 10MB</p>
+                    <p className="text-xs sm:text-sm text-[#A9A9A9]">PDF, TXT upto 10MB</p>
                   </div>
                   {!file && (
                     <label 
                       htmlFor="file-upload"
-                      className="inline-block px-6 py-2.5 bg-[#F6F6F6]  text-[#303030] font-medium rounded-full hover:bg-[#ececec] transition-colors cursor-pointer"
+                      className="inline-block px-4 sm:px-6 py-2 sm:py-2.5 bg-[#F6F6F6]  text-[#303030] font-medium text-xs sm:text-sm rounded-full hover:bg-[#ececec] transition-colors cursor-pointer"
                     >
                       Browse Files
                     </label>
@@ -218,11 +218,11 @@ export default function CreateAssignmentPage() {
                   )}
                 </div>
               </div>
-              <p className="text-sm text-gray-500 text-center mt-3">Upload images of your preferred document/image</p>
+              <p className="text-xs sm:text-sm text-gray-500 text-center mt-2 sm:mt-3">Upload images of your preferred document/image</p>
             </div>
 
-            <div className="mb-8">
-              <label className="block text-base font-semibold text-gray-900 mb-3">Due Date</label>
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Due Date</label>
               <Controller
                 name="dueDate"
                 control={control}
@@ -230,16 +230,16 @@ export default function CreateAssignmentPage() {
                   <div className="relative w-full" ref={calendarRef}>
                     <div
                       onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                      className="flex items-center justify-between w-full px-5 py-3 border border-gray-300 rounded-xl cursor-pointer hover:border-gray-400 bg-white transition-all duration-200 hover:shadow-sm"
+                      className="flex items-center justify-between w-full px-4 sm:px-5 py-2 sm:py-3 border border-gray-300 rounded-xl cursor-pointer hover:border-gray-400 bg-white transition-all duration-200 hover:shadow-sm"
                     >
-                      <span className={`text-sm font-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}>
+                      <span className={`text-xs sm:text-sm font-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}>
                         {value ? format(value, 'dd-MM-yyyy') : 'DD-MM-YYYY'}
                       </span>
-                      <Calendar className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isCalendarOpen ? 'rotate-180' : ''}`} />
+                      <Calendar className={`w-4 sm:w-5 h-4 sm:h-5 text-gray-400 transition-transform duration-200 ${isCalendarOpen ? 'rotate-180' : ''}`} />
                     </div>
 
                     {isCalendarOpen && (
-                      <div className="absolute z-50 mt-3 left-0 right-0 sm:left-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+                      <div className="absolute z-50 mt-2 sm:mt-3 left-2 right-2 sm:left-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 sm:p-6">
                         <style>{`
                           .calendar-wrapper .rdp {
                             --rdp-cell-size: 40px;
@@ -344,11 +344,11 @@ export default function CreateAssignmentPage() {
                             disabled={{ before: new Date() }}
                           />
                         </div>
-                        <div className="border-t border-gray-100 mt-4 pt-4 flex gap-2 justify-end">
+                        <div className="border-t border-gray-100 mt-4 pt-4 flex gap-2 justify-end flex-wrap">
                           <button
                             type="button"
                             onClick={() => setIsCalendarOpen(false)}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
+                            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
                           >
                             Cancel
                           </button>
@@ -359,7 +359,7 @@ export default function CreateAssignmentPage() {
                                 onChange(undefined);
                                 setIsCalendarOpen(false);
                               }}
-                              className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
+                              className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
                             >
                               Clear
                             </button>
@@ -367,7 +367,7 @@ export default function CreateAssignmentPage() {
                           <button
                             type="button"
                             onClick={() => setIsCalendarOpen(false)}
-                            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors duration-150"
+                            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors duration-150"
                           >
                             Done
                           </button>
@@ -378,28 +378,29 @@ export default function CreateAssignmentPage() {
                 )}
               />
               {errors.dueDate && (
-                <p className="mt-2 text-sm text-red-600 font-medium">{errors.dueDate.message}</p>
+                <p className="mt-2 text-xs sm:text-sm text-red-600 font-medium">{errors.dueDate.message}</p>
               )}
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-4">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
               </div>
 
-              <div className="flex items-center justify-between mb-2 px-4">
-                <span className="flex-1 block text-base font-semibold text-gray-900">Question Type</span>
-                <span className="text-sm font-semibold text-gray-700 w-36 text-center">No. of Questions</span>
-                <span className="text-sm font-semibold text-gray-700 w-28 text-center">Marks</span>
+              <div className="hidden sm:flex items-center justify-between mb-2 px-4">
+                <span className="flex-1 block text-sm sm:text-base font-semibold text-gray-900">Question Type</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-700 w-32 text-center">No. of Questions</span>
+                <span className="text-xs sm:text-sm font-semibold text-gray-700 w-24 text-center">Marks</span>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-3  rounded-xl px-4 py-3 transition-colors">
-                    <div className="flex items-center gap-2 flex-1">
+                  <div key={field.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-xl px-3 sm:px-4 py-3 transition-colors border border-gray-100 sm:border-0">
+                    <div className="flex items-center gap-2 flex-1 w-full">
+                      <span className="text-xs sm:hidden font-semibold text-gray-600 w-20 shrink-0">Type:</span>
                       <select
                         {...register(`questionTypes.${index}.type`)}
-                        className="flex-1 px-5 py-2.5 border border-gray-300 rounded-full outline-none text-sm bg-white appearance-none cursor-pointer"
-                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}
+                        className="flex-1 px-3 sm:px-5 py-2 sm:py-2.5 border border-gray-300 rounded-full outline-none text-xs sm:text-sm bg-white appearance-none cursor-pointer"
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                       >
                         {QUESTION_TYPES.map((type) => (
                           <option key={type} value={type}>{type}</option>
@@ -409,13 +410,14 @@ export default function CreateAssignmentPage() {
                       <button
                         type="button"
                         onClick={() => fields.length > 1 && remove(index)}
-                        className={`p-1.5 rounded-full transition-colors ${fields.length > 1 ? 'text-stone-900 hover:text-red-600 hover:bg-red-50 cursor-pointer' : 'text-stone-900 cursor-not-allowed'}`}
+                        className={`p-1 sm:p-1.5 rounded-full transition-colors shrink-0 ${fields.length > 1 ? 'text-stone-900 hover:text-red-600 hover:bg-red-50 cursor-pointer' : 'text-stone-900 cursor-not-allowed'}`}
                       >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 sm:w-5 h-4 sm:h-5" />
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-3 px-1 space-x-3 rounded-full justify-center bg-white">
+                    <div className="flex items-center gap-3 px-1 sm:space-x-3 rounded-full justify-center bg-white w-full sm:w-auto">
+                      <span className="text-xs font-semibold text-gray-600 shrink-0 sm:hidden w-12">Count:</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -424,11 +426,11 @@ export default function CreateAssignmentPage() {
                             setValue(`questionTypes.${index}.count`, currentValue - 1);
                           }
                         }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                        className="w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors shrink-0"
                       >
-                        <span className="text-xl leading-none">−</span>
+                        <span className="text-lg sm:text-xl leading-none">−</span>
                       </button>
-                      <span className="w-8 text-center text-base font-semibold text-gray-900 tabular-nums">
+                      <span className="w-6 sm:w-8 text-center text-sm sm:text-base font-semibold text-gray-900 tabular-nums shrink-0">
                         {questionTypes[index]?.count ?? 0}
                       </span>
                       <input type="hidden" {...register(`questionTypes.${index}.count`, { valueAsNumber: true })} />
@@ -440,13 +442,14 @@ export default function CreateAssignmentPage() {
                             setValue(`questionTypes.${index}.count`, currentValue + 1);
                           }
                         }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                        className="w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors shrink-0"
                       >
-                        <span className="text-xl leading-none">+</span>
+                        <span className="text-lg sm:text-xl leading-none">+</span>
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2 rounded-full px-1 justify-center bg-white">
+                    <div className="flex items-center gap-2 sm:gap-3 rounded-full px-1 justify-center bg-white w-full sm:w-auto">
+                      <span className="text-xs font-semibold text-gray-600 shrink-0 sm:hidden w-12">Marks:</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -455,11 +458,11 @@ export default function CreateAssignmentPage() {
                             setValue(`questionTypes.${index}.marks`, currentValue - 1);
                           }
                         }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                        className="w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors shrink-0"
                       >
-                        <span className="text-xl leading-none">−</span>
+                        <span className="text-lg sm:text-xl leading-none">−</span>
                       </button>
-                      <span className="w-8 text-center text-lg font-semibold text-gray-900 tabular-nums">
+                      <span className="w-6 sm:w-8 text-center text-sm sm:text-lg font-semibold text-gray-900 tabular-nums shrink-0">
                         {questionTypes[index]?.marks ?? 0}
                       </span>
                       <input type="hidden" {...register(`questionTypes.${index}.marks`, { valueAsNumber: true })} />
@@ -471,9 +474,9 @@ export default function CreateAssignmentPage() {
                             setValue(`questionTypes.${index}.marks`, currentValue + 1);
                           }
                         }}
-                        className="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                        className="w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors shrink-0"
                       >
-                        <span className="text-xl leading-none">+</span>
+                        <span className="text-lg sm:text-xl leading-none">+</span>
                       </button>
                     </div>
                   </div>
@@ -483,15 +486,15 @@ export default function CreateAssignmentPage() {
               <button
                 type="button"
                 onClick={() => append({ type: 'Short Questions', count: 3, marks: 2 })}
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg cursor-pointer transition-colors"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-700 rounded-lg cursor-pointer transition-colors"
               >
-                <div className="w-8 h-8 flex items-center justify-center bg-gray-900 text-white rounded-full">
-                  <Plus className="w-6 h-6" />
+                <div className="w-7 sm:w-8 h-7 sm:h-8 flex items-center justify-center bg-gray-900 text-white rounded-full shrink-0">
+                  <Plus className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
                 Add Question Type
               </button>
 
-              <div className="flex justify-end gap-2 pt-4 text-sm flex-col">
+              <div className="flex justify-end gap-2 pt-3 sm:pt-4 text-xs sm:text-sm flex-col">
                 <div className="text-right">
                   <span className="text-stone-950">Total Questions : </span>
                   <span className="font-semibold text-stone-950">{totalQuestions}</span>
@@ -503,8 +506,8 @@ export default function CreateAssignmentPage() {
               </div>
             </div>
 
-            <div className="mt-8">
-              <label className="block text-base font-semibold text-gray-900 mb-3">
+            <div className="mt-6 sm:mt-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">
                 Additional Information (For better output)
               </label>
               <div className="relative">
@@ -512,7 +515,7 @@ export default function CreateAssignmentPage() {
                   {...register('additionalInstructions')}
                   rows={4}
                   placeholder="e.g Generate a question paper for 3 hour exam duration..."
-                  className="w-full px-4 py-3 border border-dashed border-gray-300 rounded-lg outline-none resize-none text-sm"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-dashed border-gray-300 rounded-lg outline-none resize-none text-xs sm:text-sm"
                 />
                 <button
                   type="button"
@@ -525,34 +528,37 @@ export default function CreateAssignmentPage() {
           </div>
 
           {submitError && (
-            <p className="text-sm text-red-500 text-center">{submitError}</p>
+            <p className="text-xs sm:text-sm text-red-500 text-center">{submitError}</p>
           )}
 
-          <div className="flex justify-between items-center pt-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 sm:pt-4">
             <button
               type="button"
               onClick={() => window.history.back()}
               disabled={isSubmitting}
-              className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-full bg-white cursor-pointer transition-colors flex items-center gap-2 group disabled:opacity-50"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 font-medium text-sm rounded-full bg-white cursor-pointer transition-colors flex items-center justify-center sm:justify-start gap-2 group disabled:opacity-50"
             >
-              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
-              Previous
+              <ChevronLeft className="w-4 sm:w-5 h-4 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Back</span>
             </button>
             
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 bg-stone-900 text-white font-medium rounded-full hover:bg-stone-800 transition-colors flex items-center gap-2 cursor-pointer group shadow-sm disabled:opacity-50"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-stone-900 text-white font-medium text-sm rounded-full hover:bg-stone-800 transition-colors flex items-center justify-center gap-2 cursor-pointer group shadow-sm disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Creating…
+                  <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
+                  <span className="hidden sm:inline">Creating…</span>
+                  <span className="sm:hidden">Creating</span>
                 </>
               ) : (
                 <>
-                  Create Assignment
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="hidden sm:inline">Create Assignment</span>
+                  <span className="sm:hidden">Create</span>
+                  <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-0.5 transition-transform" />
                 </>
               )}
             </button>
