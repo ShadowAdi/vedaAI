@@ -36,81 +36,154 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             preview: rawResponse.substring(0, 300)
         });
 
+        // 🔍 DEBUG: Log the raw response as received
+        console.log("\n========== PARSE: RAW INPUT ==========");
+        console.log("Length:", rawResponse.length);
+        console.log("Content:", rawResponse);
+        console.log("========== END RAW INPUT ==========\n");
+
         let jsonString = rawResponse.trim();
 
         // Step 1: Strip <think>...</think> reasoning blocks (sarvam-m is a reasoning model)
         if (jsonString.includes('<think>')) {
+            console.log("[PARSE STEP 1] Found <think> blocks, stripping...");
             jsonString = jsonString.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
             logger.info("[parseAIResponse] Stripped <think> reasoning block");
+            console.log("[PARSE STEP 1] After stripping <think>:", jsonString.substring(0, 300));
         }
 
         // Step 2: Strip markdown fences
+        const beforeMarkdownStrip = jsonString;
         jsonString = jsonString
             .replace(/^```json\s*/i, '')
             .replace(/^```\s*/i, '')
             .replace(/\s*```$/i, '')
             .replace(/```json\n?/g, '')
             .replace(/```\n?/g, '');
+        
+        if (beforeMarkdownStrip !== jsonString) {
+            console.log("[PARSE STEP 2] Stripped markdown fences");
+            console.log("[PARSE STEP 2] After stripping markdown:", jsonString.substring(0, 300));
+        }
 
         // Step 3: Strip XML-style tags
+        const beforeXmlStrip = jsonString;
         jsonString = jsonString
             .replace(/<json>/gi, '')
             .replace(/<\/json>/gi, '');
+        
+        if (beforeXmlStrip !== jsonString) {
+            console.log("[PARSE STEP 3] Stripped XML-style tags");
+            console.log("[PARSE STEP 3] After stripping XML:", jsonString.substring(0, 300));
+        }
 
         // Step 4: Strip JS comments
+        const beforeCommentStrip = jsonString;
         jsonString = jsonString
             .replace(/\/\*[\s\S]*?\*\//g, '')
             .replace(/\/\/.*$/gm, '');
+        
+        if (beforeCommentStrip !== jsonString) {
+            console.log("[PARSE STEP 4] Stripped JS comments");
+            console.log("[PARSE STEP 4] After stripping comments:", jsonString.substring(0, 300));
+        }
 
         jsonString = jsonString.trim();
+
+        console.log("\n[PARSE STEP 5] JSON string after all cleaning:");
+        console.log("Length:", jsonString.length);
+        console.log("First 500 chars:", jsonString.substring(0, 500));
+        console.log("Last 200 chars:", jsonString.substring(Math.max(0, jsonString.length - 200)));
 
         // Step 5: Find the last valid JSON block
         let parsed: any;
         const extracted = findValidJson(jsonString);
 
         if (extracted) {
-            logger.info("[parseAIResponse] Extracted valid JSON block via backwards scan");
+            console.log("[PARSE STEP 5] ✅ Extracted valid JSON block via backwards scan");
+            console.log("[PARSE STEP 5] Extracted JSON length:", extracted.length);
             jsonString = extracted;
         } else {
+            console.log("[PARSE STEP 5] ⚠️ No valid JSON found via backwards scan, trying naive slice");
             // Fallback: naive first { to last }
             const start = jsonString.indexOf('{');
             const end = jsonString.lastIndexOf('}');
+            console.log("[PARSE STEP 5] Naive search: first { at", start, "last } at", end);
+            
             if (start !== -1 && end !== -1 && start < end) {
                 jsonString = jsonString.substring(start, end + 1);
-                logger.info("[parseAIResponse] Extracted JSON via naive slice", { start, end });
+                console.log("[PARSE STEP 5] ✅ Extracted JSON via naive slice, length:", jsonString.length);
+                console.log("[PARSE STEP 5] Extracted:", jsonString.substring(0, 300));
+            } else {
+                console.log("[PARSE STEP 5] ❌ Could not find valid JSON structure");
             }
         }
 
         // Step 6: Parse
+        let parseError: any = null;
         try {
+            console.log("\n[PARSE STEP 6] Attempting JSON.parse...");
             parsed = JSON.parse(jsonString);
-        } catch (parseError) {
+            console.log("[PARSE STEP 6] ✅ JSON.parse successful");
+            console.log("[PARSE STEP 6] Parsed object keys:", Object.keys(parsed));
+        } catch (error) {
+            parseError = error;
+            console.log("[PARSE STEP 6] ❌ JSON.parse failed");
+            console.log("[PARSE STEP 6] Error:", String(error));
+            console.log("[PARSE STEP 6] Attempted JSON:", jsonString.substring(0, 1000));
+            
             logger.error("[parseAIResponse] JSON parse failed", {
-                error: String(parseError),
+                error: String(error),
                 attemptedJson: jsonString.substring(0, 1000),
                 jsonLength: jsonString.length
             });
-            throw parseError;
+            throw error;
         }
 
         // Step 7: Validate structure
-        if (!parsed.sections || !Array.isArray(parsed.sections)) {
+        console.log("\n[PARSE STEP 7] Validating structure...");
+        console.log("[PARSE STEP 7] Parsed object:", JSON.stringify(parsed, null, 2).substring(0, 500));
+        
+        if (!parsed.sections) {
+            console.log("[PARSE STEP 7] ❌ ERROR: parsed.sections is undefined");
+            console.log("[PARSE STEP 7] Available keys:", Object.keys(parsed));
+            
             logger.error("[parseAIResponse] Invalid response structure", {
-                keys: Object.keys(parsed)
+                keys: Object.keys(parsed),
+                parsed: JSON.stringify(parsed, null, 2).substring(0, 1000)
             });
             throw new AppError('Invalid response structure - missing sections array', 500);
         }
 
+        if (!Array.isArray(parsed.sections)) {
+            console.log("[PARSE STEP 7] ❌ ERROR: sections is not an array");
+            console.log("[PARSE STEP 7] sections type:", typeof parsed.sections);
+            console.log("[PARSE STEP 7] sections value:", parsed.sections);
+            
+            throw new AppError('Invalid response structure - sections must be an array', 500);
+        }
+
         if (parsed.sections.length === 0) {
+            console.log("[PARSE STEP 7] ❌ ERROR: sections array is empty");
             throw new AppError('Invalid response structure - sections array is empty', 500);
         }
+
+        console.log("[PARSE STEP 7] ✅ sections array found with", parsed.sections.length, "sections");
 
         logger.info("[parseAIResponse] Found sections in response", {
             sectionCount: parsed.sections.length
         });
 
         const sections: any[] = parsed.sections.map((section: any, idx: number) => {
+            console.log(`\n[PARSE STEP 7] Processing section ${idx}...`);
+            console.log(`[PARSE STEP 7] Section ${idx} keys:`, Object.keys(section));
+            
             if (!section.title || !section.instruction || !section.questions) {
+                console.log(`[PARSE STEP 7] ❌ ERROR: Section ${idx} missing required fields`);
+                console.log(`[PARSE STEP 7] - hasTitle: ${!!section.title}`);
+                console.log(`[PARSE STEP 7] - hasInstruction: ${!!section.instruction}`);
+                console.log(`[PARSE STEP 7] - hasQuestions: ${!!section.questions}`);
+                
                 logger.error(`[parseAIResponse] Invalid section #${idx} structure`, {
                     hasTitle: !!section.title,
                     hasInstruction: !!section.instruction,
@@ -121,20 +194,32 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             }
 
             if (!Array.isArray(section.questions)) {
+                console.log(`[PARSE STEP 7] ❌ ERROR: Section ${idx} questions is not array, it's:`, typeof section.questions);
                 throw new AppError(`Invalid section structure - questions must be an array at section ${idx}`, 500);
             }
 
             if (section.questions.length === 0) {
+                console.log(`[PARSE STEP 7] ❌ ERROR: Section ${idx} has no questions`);
                 throw new AppError(`Invalid section structure - section ${idx} has no questions`, 500);
             }
 
+            console.log(`[PARSE STEP 7] ✅ Section ${idx} has ${section.questions.length} questions`);
+
             const questions: any[] = section.questions.map((q: any, qIdx: number) => {
                 if (!q.text || !q.difficulty || q.marks === undefined || q.marks === null) {
+                    console.log(`[PARSE STEP 7] ❌ ERROR: Question ${idx}.${qIdx} missing required fields`);
+                    console.log(`[PARSE STEP 7] - hasText: ${!!q.text}`);
+                    console.log(`[PARSE STEP 7] - hasDifficulty: ${!!q.difficulty}`);
+                    console.log(`[PARSE STEP 7] - hasMarks: ${q.marks !== undefined && q.marks !== null}`);
+                    console.log(`[PARSE STEP 7] - marks value:`, q.marks);
+                    console.log(`[PARSE STEP 7] - Question object:`, JSON.stringify(q, null, 2));
+                    
                     logger.error(`[parseAIResponse] Invalid question at section ${idx}, question ${qIdx}`, {
                         hasText: !!q.text,
                         hasDifficulty: !!q.difficulty,
                         hasMarks: q.marks !== undefined && q.marks !== null,
-                        marks: q.marks
+                        marks: q.marks,
+                        question: JSON.stringify(q)
                     });
                     throw new AppError(`Invalid question structure at section ${idx}, question ${qIdx} - missing text, difficulty, or marks`, 500);
                 }
@@ -142,6 +227,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
                 const difficulty = String(q.difficulty).toLowerCase();
 
                 if (!['easy', 'medium', 'hard'].includes(difficulty)) {
+                    console.log(`[PARSE STEP 7] ⚠️ WARNING: Question ${idx}.${qIdx} invalid difficulty: "${q.difficulty}" — defaulting to "medium"`);
                     logger.warn(`[parseAIResponse] Invalid difficulty at section ${idx}, question ${qIdx}: "${q.difficulty}" — defaulting to "medium"`);
                 }
 
@@ -161,6 +247,10 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
 
         const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
 
+        console.log("\n[PARSE FINAL] ✅ Successfully parsed response");
+        console.log("[PARSE FINAL] Section count:", sections.length);
+        console.log("[PARSE FINAL] Total questions:", totalQuestions);
+
         logger.info("[parseAIResponse] Successfully parsed response", {
             sectionCount: sections.length,
             totalQuestions
@@ -169,6 +259,10 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         return { sections };
 
     } catch (error) {
+        console.log("\n[PARSE ERROR] ❌ FAILED TO PARSE");
+        console.log("[PARSE ERROR] Error:", String(error));
+        console.log("[PARSE ERROR] Error stack:", error instanceof Error ? error.stack : "N/A");
+        
         logger.error('[parseAIResponse] Failed to parse AI response', {
             error: String(error),
             rawResponse: rawResponse.substring(0, 500)

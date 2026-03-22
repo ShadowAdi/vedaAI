@@ -46,6 +46,13 @@ export const generateQuestionWithAI = async (prompt: string) => {
             contentPreview: rawContent.substring(0, 200)
         });
 
+        // 🔍 DEBUG: Log the complete raw response for debugging
+        console.log("\n========== COMPLETE AI RESPONSE ==========");
+        console.log(rawContent);
+        console.log("========== END AI RESPONSE ==========\n");
+        
+        logger.info("[generateQuestionWithAI] Full AI response logged to console");
+
         return rawContent;
     } catch (error) {
         if (axios.isAxiosError(error)) {
