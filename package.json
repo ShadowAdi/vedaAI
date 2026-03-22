@@ -1,0 +1,25 @@
+{
+  "name": "vedaai-monorepo",
+  "version": "1.0.0",
+  "description": "VedaAI - A comprehensive AI-powered learning platform (Frontend + Backend)",
+  "private": true,
+  "scripts": {
+    "install-all": "npm install && cd vedaAiBackend && yarn install",
+    "dev": "npm run dev --prefix vedaai-frontend & yarn --cwd vedaAiBackend dev",
+    "build": "npm run build --prefix vedaai-frontend && yarn --cwd vedaAiBackend build",
+    "frontend:install": "npm install --prefix vedaai-frontend",
+    "backend:install": "yarn --cwd vedaAiBackend install",
+    "frontend:dev": "npm run dev --prefix vedaai-frontend",
+    "backend:dev": "yarn --cwd vedaAiBackend dev",
+    "frontend:build": "npm run build --prefix vedaai-frontend",
+    "backend:build": "yarn --cwd vedaAiBackend build"
+  },
+  "keywords": [
+    "AI",
+    "Learning",
+    "Education",
+    "VedaAI"
+  ],
+  "author": "",
+  "license": "MIT"
+}
