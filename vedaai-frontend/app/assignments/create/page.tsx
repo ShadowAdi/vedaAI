@@ -239,8 +239,99 @@ export default function CreateAssignmentPage() {
                     </div>
 
                     {isCalendarOpen && (
-                      <div className="absolute z-50 mt-3 w-full sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="space-y-4">
+                      <div className="absolute z-50 mt-3 left-0 right-0 sm:left-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 p-6">
+                        <style>{`
+                          .calendar-wrapper .rdp {
+                            --rdp-cell-size: 40px;
+                            --rdp-accent-color: #1f2937;
+                            --rdp-background-color: #dbeafe;
+                          }
+                          .calendar-wrapper .rdp-month {
+                            width: 100%;
+                          }
+                          .calendar-wrapper .rdp-caption {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1.5rem;
+                            padding: 0;
+                          }
+                          .calendar-wrapper .rdp-caption_label {
+                            font-size: 1rem;
+                            font-weight: 700;
+                            color: #111827;
+                          }
+                          .calendar-wrapper .rdp-nav {
+                            display: flex;
+                            gap: 0.5rem;
+                          }
+                          .calendar-wrapper .rdp-nav_button {
+                            width: 36px;
+                            height: 36px;
+                            padding: 0;
+                            background: #f3f4f6;
+                            border: none;
+                            border-radius: 0.5rem;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: background-color 0.15s;
+                          }
+                          .calendar-wrapper .rdp-nav_button:hover {
+                            background: #e5e7eb;
+                          }
+                          .calendar-wrapper .rdp-head_cell {
+                            font-size: 0.75rem;
+                            font-weight: 700;
+                            color: #4b5563;
+                            text-transform: uppercase;
+                            height: 32px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0;
+                          }
+                          .calendar-wrapper .rdp-cell {
+                            padding: 0;
+                            text-align: center;
+                          }
+                          .calendar-wrapper .rdp-day {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 0.5rem;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.15s;
+                          }
+                          .calendar-wrapper .rdp-day:hover:not(.rdp-day_disabled) {
+                            background: #eff6ff;
+                          }
+                          .calendar-wrapper .rdp-day_selected {
+                            background: #1f2937;
+                            color: white;
+                            font-weight: 700;
+                          }
+                          .calendar-wrapper .rdp-day_selected:hover {
+                            background: #111827;
+                          }
+                          .calendar-wrapper .rdp-day_today {
+                            background: #dbeafe;
+                            color: #1f2937;
+                            font-weight: 700;
+                            box-shadow: inset 0 0 0 2px #3b82f6;
+                          }
+                          .calendar-wrapper .rdp-day_outside {
+                            color: #d1d5db;
+                            opacity: 0.5;
+                          }
+                          .calendar-wrapper .rdp-day_disabled {
+                            color: #d1d5db;
+                            opacity: 0.5;
+                            cursor: not-allowed;
+                          }
+                        `}</style>
+                        <div className="calendar-wrapper">
                           <DayPicker
                             mode="single"
                             selected={value}
@@ -251,55 +342,35 @@ export default function CreateAssignmentPage() {
                               }
                             }}
                             disabled={{ before: new Date() }}
-                            classNames={{
-                              root: 'w-full',
-                              month: 'space-y-4 w-full',
-                              caption: 'flex justify-between items-center mb-4 relative px-0',
-                              caption_label: 'text-base font-bold text-gray-900',
-                              nav: 'flex gap-2 absolute right-0 top-0',
-                              nav_button: 'h-9 w-9 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-150 flex items-center justify-center opacity-100',
-                              nav_button_previous: 'hover:bg-gray-200',
-                              nav_button_next: 'hover:bg-gray-200',
-                              table: 'w-full border-collapse',
-                              head_row: 'grid grid-cols-7 gap-2 mb-3',
-                              head_cell: 'text-xs font-bold text-gray-600 uppercase text-center h-8 flex items-center justify-center',
-                              row: 'grid grid-cols-7 gap-2',
-                              cell: 'text-center text-sm p-0 relative h-9 flex items-center justify-center focus-within:relative focus-within:z-20',
-                              day: 'h-9 w-full flex items-center justify-center font-medium rounded-lg transition-all duration-150 hover:bg-blue-50 cursor-pointer text-gray-900',
-                              day_selected: 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:from-gray-800 hover:to-gray-700 shadow-md font-bold',
-                              day_today: 'bg-blue-100 text-gray-900 font-bold ring-2 ring-blue-300',
-                              day_outside: 'text-gray-300 opacity-60 cursor-not-allowed',
-                              day_disabled: 'text-gray-300 opacity-60 cursor-not-allowed',
-                            }}
                           />
-                          <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
+                        </div>
+                        <div className="border-t border-gray-100 mt-4 pt-4 flex gap-2 justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setIsCalendarOpen(false)}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-150"
+                          >
+                            Cancel
+                          </button>
+                          {value && (
                             <button
                               type="button"
-                              onClick={() => setIsCalendarOpen(false)}
-                              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-150"
+                              onClick={() => {
+                                onChange(undefined);
+                                setIsCalendarOpen(false);
+                              }}
+                              className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150"
                             >
-                              Cancel
+                              Clear
                             </button>
-                            {value && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  onChange(undefined);
-                                  setIsCalendarOpen(false);
-                                }}
-                                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-150"
-                              >
-                                Clear
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => setIsCalendarOpen(false)}
-                              className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors duration-150"
-                            >
-                              Done
-                            </button>
-                          </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setIsCalendarOpen(false)}
+                            className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors duration-150"
+                          >
+                            Done
+                          </button>
                         </div>
                       </div>
                     )}
