@@ -56,7 +56,7 @@ const autoCloseJson = (text: string): string | null => {
     if (start === -1) return null;
 
     let candidate = text.substring(start);
-    
+
     for (let closeCount = 0; closeCount <= 10; closeCount++) {
         const attempt = candidate + '}'.repeat(closeCount);
         try {
@@ -88,9 +88,21 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
 
         if (jsonString.includes('<think>')) {
             console.log("[PARSE STEP 1] Found <think> blocks, stripping...");
+
             jsonString = jsonString.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+            if (jsonString.includes('<think>')) {
+                const thinkStart = jsonString.indexOf('<think>');
+                jsonString = jsonString.substring(0, thinkStart).trim();
+                logger.warn("[parseAIResponse] Found unclosed <think> block — truncated at think start");
+            }
+
             logger.info("[parseAIResponse] Stripped <think> reasoning block");
-            console.log("[PARSE STEP 1] After stripping <think>:", jsonString.substring(0, 300));
+        }
+
+        if (jsonString.trim().length < 10 || !jsonString.includes('{')) {
+            logger.error("[parseAIResponse] Response is empty or has no JSON after stripping think blocks");
+            throw new AppError('AI model returned only reasoning with no JSON output — increase max_tokens', 500);
         }
 
         const beforeMarkdownStrip = jsonString;
@@ -100,7 +112,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             .replace(/\s*```$/i, '')
             .replace(/```json\n?/g, '')
             .replace(/```\n?/g, '');
-        
+
         if (beforeMarkdownStrip !== jsonString) {
             console.log("[PARSE STEP 2] Stripped markdown fences");
             console.log("[PARSE STEP 2] After stripping markdown:", jsonString.substring(0, 300));
@@ -110,7 +122,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         jsonString = jsonString
             .replace(/<json>/gi, '')
             .replace(/<\/json>/gi, '');
-        
+
         if (beforeXmlStrip !== jsonString) {
             console.log("[PARSE STEP 3] Stripped XML-style tags");
             console.log("[PARSE STEP 3] After stripping XML:", jsonString.substring(0, 300));
@@ -120,7 +132,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         jsonString = jsonString
             .replace(/\/\*[\s\S]*?\*\//g, '')
             .replace(/\/\/.*$/gm, '');
-        
+
         if (beforeCommentStrip !== jsonString) {
             console.log("[PARSE STEP 4] Stripped JS comments");
             console.log("[PARSE STEP 4] After stripping comments:", jsonString.substring(0, 300));
@@ -144,14 +156,14 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         } else {
             console.log("[PARSE STEP 5] ⚠️ No valid JSON found via backwards scan, trying multi-position fallback");
             extracted = extractJsonWithFallback(jsonString);
-            
+
             if (extracted) {
                 console.log("[PARSE STEP 5] ✅ Found valid JSON via multi-position fallback");
                 jsonString = extracted;
             } else {
                 console.log("[PARSE STEP 5] ⚠️ Multi-position fallback failed, trying auto-close");
                 extracted = autoCloseJson(jsonString);
-                
+
                 if (extracted) {
                     console.log("[PARSE STEP 5] ✅ Successfully auto-closed incomplete JSON");
                     jsonString = extracted;
@@ -160,7 +172,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
                     const start = jsonString.indexOf('{');
                     const end = jsonString.lastIndexOf('}');
                     console.log("[PARSE STEP 5] Naive fallback: first { at", start, "last } at", end);
-                    
+
                     if (start !== -1 && end !== -1 && start < end) {
                         jsonString = jsonString.substring(start, end + 1);
                         console.log("[PARSE STEP 5] Used naive slice, length:", jsonString.length);
@@ -183,7 +195,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             console.log("[PARSE STEP 6] ❌ JSON.parse failed");
             console.log("[PARSE STEP 6] Error:", String(error));
             console.log("[PARSE STEP 6] Attempted JSON:", jsonString.substring(0, 1000));
-            
+
             logger.error("[parseAIResponse] JSON parse failed", {
                 error: String(error),
                 attemptedJson: jsonString.substring(0, 1000),
@@ -195,11 +207,11 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         // Step 7: Validate structure
         console.log("\n[PARSE STEP 7] Validating structure...");
         console.log("[PARSE STEP 7] Parsed object:", JSON.stringify(parsed, null, 2).substring(0, 500));
-        
+
         if (!parsed.sections) {
             console.log("[PARSE STEP 7] ❌ ERROR: parsed.sections is undefined");
             console.log("[PARSE STEP 7] Available keys:", Object.keys(parsed));
-            
+
             logger.error("[parseAIResponse] Invalid response structure", {
                 keys: Object.keys(parsed),
                 parsed: JSON.stringify(parsed, null, 2).substring(0, 1000)
@@ -211,7 +223,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             console.log("[PARSE STEP 7] ❌ ERROR: sections is not an array");
             console.log("[PARSE STEP 7] sections type:", typeof parsed.sections);
             console.log("[PARSE STEP 7] sections value:", parsed.sections);
-            
+
             throw new AppError('Invalid response structure - sections must be an array', 500);
         }
 
@@ -229,13 +241,13 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         const sections: any[] = parsed.sections.map((section: any, idx: number) => {
             console.log(`\n[PARSE STEP 7] Processing section ${idx}...`);
             console.log(`[PARSE STEP 7] Section ${idx} keys:`, Object.keys(section));
-            
+
             if (!section.title || !section.instruction || !section.questions) {
                 console.log(`[PARSE STEP 7] ❌ ERROR: Section ${idx} missing required fields`);
                 console.log(`[PARSE STEP 7] - hasTitle: ${!!section.title}`);
                 console.log(`[PARSE STEP 7] - hasInstruction: ${!!section.instruction}`);
                 console.log(`[PARSE STEP 7] - hasQuestions: ${!!section.questions}`);
-                
+
                 logger.error(`[parseAIResponse] Invalid section #${idx} structure`, {
                     hasTitle: !!section.title,
                     hasInstruction: !!section.instruction,
@@ -265,7 +277,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
                     console.log(`[PARSE STEP 7] - hasMarks: ${q.marks !== undefined && q.marks !== null}`);
                     console.log(`[PARSE STEP 7] - marks value:`, q.marks);
                     console.log(`[PARSE STEP 7] - Question object:`, JSON.stringify(q, null, 2));
-                    
+
                     logger.error(`[parseAIResponse] Invalid question at section ${idx}, question ${qIdx}`, {
                         hasText: !!q.text,
                         hasDifficulty: !!q.difficulty,
@@ -314,7 +326,7 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
         console.log("\n[PARSE ERROR] ❌ FAILED TO PARSE");
         console.log("[PARSE ERROR] Error:", String(error));
         console.log("[PARSE ERROR] Error stack:", error instanceof Error ? error.stack : "N/A");
-        
+
         logger.error('[parseAIResponse] Failed to parse AI response', {
             error: String(error),
             rawResponse: rawResponse.substring(0, 500)
