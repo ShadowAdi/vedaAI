@@ -27,6 +27,49 @@ const findValidJson = (text: string): string | null => {
     return null;
 };
 
+const extractJsonWithFallback = (text: string): string | null => {
+    const start = text.indexOf('{');
+    if (start === -1) return null;
+
+    const closingPositions: number[] = [];
+    for (let i = text.length - 1; i > start; i--) {
+        if (text[i] === '}') {
+            closingPositions.push(i);
+        }
+    }
+
+    for (const end of closingPositions) {
+        const candidate = text.substring(start, end + 1);
+        try {
+            JSON.parse(candidate);
+            console.log(`[findValidJson] ✅ Found valid JSON at end position ${end}`);
+            return candidate;
+        } catch {
+        }
+    }
+
+    return null;
+};
+
+const autoCloseJson = (text: string): string | null => {
+    const start = text.indexOf('{');
+    if (start === -1) return null;
+
+    let candidate = text.substring(start);
+    
+    for (let closeCount = 0; closeCount <= 10; closeCount++) {
+        const attempt = candidate + '}'.repeat(closeCount);
+        try {
+            JSON.parse(attempt);
+            console.log(`[findValidJson] ✅ Auto-closed JSON with ${closeCount} braces`);
+            return attempt;
+        } catch {
+        }
+    }
+
+    return null;
+};
+
 export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> => {
     try {
         writeDebugLog("ai_responses", `Raw Response:\n${rawResponse}`);
@@ -36,7 +79,6 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             preview: rawResponse.substring(0, 300)
         });
 
-        // 🔍 DEBUG: Log the raw response as received
         console.log("\n========== PARSE: RAW INPUT ==========");
         console.log("Length:", rawResponse.length);
         console.log("Content:", rawResponse);
@@ -44,7 +86,6 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
 
         let jsonString = rawResponse.trim();
 
-        // Step 1: Strip <think>...</think> reasoning blocks (sarvam-m is a reasoning model)
         if (jsonString.includes('<think>')) {
             console.log("[PARSE STEP 1] Found <think> blocks, stripping...");
             jsonString = jsonString.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
@@ -52,7 +93,6 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             console.log("[PARSE STEP 1] After stripping <think>:", jsonString.substring(0, 300));
         }
 
-        // Step 2: Strip markdown fences
         const beforeMarkdownStrip = jsonString;
         jsonString = jsonString
             .replace(/^```json\s*/i, '')
@@ -66,7 +106,6 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             console.log("[PARSE STEP 2] After stripping markdown:", jsonString.substring(0, 300));
         }
 
-        // Step 3: Strip XML-style tags
         const beforeXmlStrip = jsonString;
         jsonString = jsonString
             .replace(/<json>/gi, '')
@@ -77,7 +116,6 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
             console.log("[PARSE STEP 3] After stripping XML:", jsonString.substring(0, 300));
         }
 
-        // Step 4: Strip JS comments
         const beforeCommentStrip = jsonString;
         jsonString = jsonString
             .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -97,25 +135,39 @@ export const parseAIResponse = (rawResponse: string): Partial<IQuestionPaper> =>
 
         // Step 5: Find the last valid JSON block
         let parsed: any;
-        const extracted = findValidJson(jsonString);
+        let extracted = findValidJson(jsonString);
 
         if (extracted) {
             console.log("[PARSE STEP 5] ✅ Extracted valid JSON block via backwards scan");
             console.log("[PARSE STEP 5] Extracted JSON length:", extracted.length);
             jsonString = extracted;
         } else {
-            console.log("[PARSE STEP 5] ⚠️ No valid JSON found via backwards scan, trying naive slice");
-            // Fallback: naive first { to last }
-            const start = jsonString.indexOf('{');
-            const end = jsonString.lastIndexOf('}');
-            console.log("[PARSE STEP 5] Naive search: first { at", start, "last } at", end);
+            console.log("[PARSE STEP 5] ⚠️ No valid JSON found via backwards scan, trying multi-position fallback");
+            extracted = extractJsonWithFallback(jsonString);
             
-            if (start !== -1 && end !== -1 && start < end) {
-                jsonString = jsonString.substring(start, end + 1);
-                console.log("[PARSE STEP 5] ✅ Extracted JSON via naive slice, length:", jsonString.length);
-                console.log("[PARSE STEP 5] Extracted:", jsonString.substring(0, 300));
+            if (extracted) {
+                console.log("[PARSE STEP 5] ✅ Found valid JSON via multi-position fallback");
+                jsonString = extracted;
             } else {
-                console.log("[PARSE STEP 5] ❌ Could not find valid JSON structure");
+                console.log("[PARSE STEP 5] ⚠️ Multi-position fallback failed, trying auto-close");
+                extracted = autoCloseJson(jsonString);
+                
+                if (extracted) {
+                    console.log("[PARSE STEP 5] ✅ Successfully auto-closed incomplete JSON");
+                    jsonString = extracted;
+                } else {
+                    console.log("[PARSE STEP 5] ❌ All extraction methods failed");
+                    const start = jsonString.indexOf('{');
+                    const end = jsonString.lastIndexOf('}');
+                    console.log("[PARSE STEP 5] Naive fallback: first { at", start, "last } at", end);
+                    
+                    if (start !== -1 && end !== -1 && start < end) {
+                        jsonString = jsonString.substring(start, end + 1);
+                        console.log("[PARSE STEP 5] Used naive slice, length:", jsonString.length);
+                    } else {
+                        console.log("[PARSE STEP 5] ❌ Could not find valid JSON structure");
+                    }
+                }
             }
         }
 
