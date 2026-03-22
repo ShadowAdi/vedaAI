@@ -27,7 +27,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -37,7 +36,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
       
       <aside className={`w-72 bg-white border-r border-gray-200 flex flex-col overflow-hidden fixed md:relative z-40 md:z-auto h-full md:h-auto transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex flex-col h-full overflow-y-auto px-5 py-6 mb-6">
-          {/* Close button for mobile */}
           <button
             onClick={onClose}
             className="md:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
@@ -71,7 +69,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             </Link>
           </div>
 
-          {/* Nav */}
           <nav className="flex-1 space-y-1">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
@@ -95,11 +92,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                   <span className="flex-1">{item.name}</span>
 
-                  {item.name === 'Assignments' && (
-                    <span className="bg-[#FF5A2C] text-white text-xs px-2 py-0.5 rounded-full">
-                      10
-                    </span>
-                  )}
                 </Link>
               );
             })}
