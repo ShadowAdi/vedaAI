@@ -3,12 +3,19 @@ import { AssignmentJobPayload } from "../interface/assignment-job.payload.js";
 export const buildPrompt = (data: AssignmentJobPayload["data"], context: string): string => {
     const hasContent = context && context.trim().length > 0;
     
+    // Ensure questionTypes is an array
+    const questionTypesArray = Array.isArray(data.questionTypes) 
+        ? data.questionTypes 
+        : typeof data.questionTypes === 'string'
+        ? [data.questionTypes]
+        : [];
+    
     return `You are an expert educator creating an assessment paper. Your response will be automatically parsed by a JSON parser, so it MUST be valid JSON.
 
 **ASSIGNMENT DETAILS:**
 - Title: ${data.title}
 - Due Date: ${data.dueDate}
-- Question Types Required: ${data.questionTypes.join(", ")}
+- Question Types Required: ${questionTypesArray.join(", ")}
 - Total Questions to Generate: EXACTLY ${data.numberOfQuestions} questions
 - Total Marks for Assessment: EXACTLY ${data.totalMarks} marks
 ${data.additionalInstructions ? `- Special Instructions: ${data.additionalInstructions}` : ""}

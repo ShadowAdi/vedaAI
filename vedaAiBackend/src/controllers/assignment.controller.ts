@@ -19,9 +19,17 @@ export const CreateAssignment = async (
             numberOfQuestions,
             totalMarks,
             additionalInstructions,
-        }: ICreateAssignmentDto = request.body;
+        }: any = request.body;
 
-        if (!dueDate || !questionTypes?.length || !numberOfQuestions || !totalMarks) {
+        // Convert questionTypes to array if it's a string
+        let parsedQuestionTypes: string[] = [];
+        if (typeof questionTypes === 'string') {
+            parsedQuestionTypes = questionTypes.split(',').map((type: string) => type.trim()).filter((type: string) => type.length > 0);
+        } else if (Array.isArray(questionTypes)) {
+            parsedQuestionTypes = questionTypes;
+        }
+
+        if (!dueDate || !parsedQuestionTypes?.length || !numberOfQuestions || !totalMarks) {
             throw new AppError("Missing required assignment fields", 400);
         }
 
@@ -43,7 +51,7 @@ export const CreateAssignment = async (
             title: resolvedTitle,
             file: fileUrl,
             dueDate: new Date(dueDate),
-            questionTypes,
+            questionTypes: parsedQuestionTypes,
             numberOfQuestions: Number(numberOfQuestions),
             totalMarks: Number(totalMarks),
             additionalInstructions: additionalInstructions?.trim(),
