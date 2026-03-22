@@ -1,18 +1,26 @@
 'use client';
 
-import { Bell, ChevronDown, User, ArrowLeft, LayoutGrid } from 'lucide-react';
+import { Bell, ChevronDown, User, ArrowLeft, LayoutGrid, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function Header() {
+export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const router = useRouter()
   return (
     <div className="p-3 md:p-4 bg-[#ececec]">
       <header className="h-14 md:h-16 bg-[#FFFFFFBF]  rounded-xl shadow-sm border border-gray-200 flex items-center justify-between px-4 md:px-6">
 
         <div className="flex items-center gap-3 md:gap-4">
-          <button onClick={() => {
-            router.back()
-          }} className="p-2  rounded-full bg-white cursor-pointer">
+          <button 
+            onClick={onMenuClick}
+            className="md:hidden p-2 rounded-full bg-white cursor-pointer"
+          >
+            <Menu className="w-5 h-5 text-gray-600" />
+          </button>
+
+          <button 
+            onClick={() => window.history.back()}
+            className="hidden md:block p-2 rounded-full bg-white cursor-pointer"
+          >
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
 

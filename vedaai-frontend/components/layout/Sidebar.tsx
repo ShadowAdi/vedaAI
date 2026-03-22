@@ -9,7 +9,8 @@ import {
   Sparkles,
   Library,
   Settings,
-  SparklesIcon
+  SparklesIcon,
+  X
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -21,12 +22,28 @@ const menuItems = [
   { name: 'My Library', icon: Library, href: '/library' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
   return (
-      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={`w-72 bg-white border-r border-gray-200 flex flex-col overflow-hidden fixed md:relative z-40 md:z-auto h-full md:h-auto transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex flex-col h-full overflow-y-auto px-5 py-6 mb-6">
+          {/* Close button for mobile */}
+          <button
+            onClick={onClose}
+            className="md:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
 
           <div className="flex items-center gap-3 mb-6">
             <Image
@@ -63,6 +80,7 @@ export default function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={onClose}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
                     isActive
                       ? 'bg-gray-200 text-gray-900'
@@ -115,5 +133,6 @@ export default function Sidebar() {
           </div>
         </div>
       </aside>
+    </>
   );
 }

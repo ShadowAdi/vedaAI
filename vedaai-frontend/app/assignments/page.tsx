@@ -40,41 +40,13 @@ function AssignmentCard({ assignment, onDelete, progress }: { assignment: IAssig
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow relative min-h-37.5 justify-between flex flex-col">
-      <div className="absolute top-4 right-4" ref={menuRef}>
-        <button
-          onClick={() => setMenuOpen((prev) => !prev)}
-          className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <MoreVertical className="w-4 h-4 text-gray-400" />
-        </button>
-
-        {menuOpen && (
-          <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
-            <Link
-              href={`/assignments/${assignment._id}`}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={() => setMenuOpen(false)}
-            >
-              <Eye className="w-4 h-4" />
-              View Assignment
-            </Link>
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4" />
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-lg md:text-2xl font-bold text-gray-900 leading-snug flex-1">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg md:text-2xl font-bold text-gray-900 leading-snug">
             {assignment.title}
           </h3>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
             assignment.status === 'completed' ? 'bg-green-100 text-green-800' :
             assignment.status === 'generating' ? 'bg-blue-100 text-blue-800' :
@@ -84,14 +56,44 @@ function AssignmentCard({ assignment, onDelete, progress }: { assignment: IAssig
           }`}>
             {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
           </span>
+          <div ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <MoreVertical className="w-4 h-4 text-gray-400" />
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20">
+                <Link
+                  href={`/assignments/${assignment._id}`}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Eye className="w-4 h-4" />
+                  View Assignment
+                </Link>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
         {assignment.status === 'failed' && assignment.errorMessage && (
-          <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">
+          <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1 mt-2">
             {assignment.errorMessage}
           </p>
         )}
         {assignment.status === 'generating' && progress && (
-          <div className="mt-2">
+          <div className="mt-3">
             <div className="flex justify-between items-center mb-1">
               <p className="text-xs text-gray-600">{progress.message}</p>
               <p className="text-xs text-gray-500 font-medium">{progress.progress}%</p>
@@ -104,7 +106,6 @@ function AssignmentCard({ assignment, onDelete, progress }: { assignment: IAssig
             </div>
           </div>
         )}
-      </div>
 
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1.5">
@@ -342,7 +343,7 @@ export default function AssignmentsPage() {
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center min-h-[500px] py-20">
+          <div className="flex flex-col items-center justify-center min-h-125 py-20">
             <div className="mb-8">
               <img 
                 src="/VedaNoAssignment.png" 
