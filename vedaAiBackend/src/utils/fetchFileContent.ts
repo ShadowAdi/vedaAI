@@ -21,10 +21,8 @@ export const extractFileContent = async (fileURL: string): Promise<string> => {
             logger.info(`[extractFileContent] Detected PDF, extracting text...`);
 
             try {
-                // Initialize PDFParse with the buffer data
                 const pdfParser = new PDFParse({ data: buffer });
                 
-                // Get text from the PDF
                 const result = await pdfParser.getText();
 
                 if (!result.text || !result.text.trim()) {
@@ -43,7 +41,6 @@ export const extractFileContent = async (fileURL: string): Promise<string> => {
                 return text;
             } catch (pdfError: any) {
                 logger.error(`[extractFileContent] PDF parsing error: ${pdfError.message}`);
-                // If PDF parsing fails, try as text
                 logger.info(`[extractFileContent] Falling back to text extraction for PDF...`);
                 const textContent = buffer.toString("utf-8").trim();
                 if (textContent) {
