@@ -8,10 +8,10 @@ export const CorsConfig = (app: Express) => {
   try {
     app.use(
       cors({
-        origin: CLIENT_URL,
+        origin: [CLIENT_URL, "http://localhost:3000"].filter((url): url is string => typeof url === "string"),
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
-        credentials:true
+        credentials: true
       })
     );
   } catch (error) {
