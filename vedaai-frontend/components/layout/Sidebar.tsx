@@ -92,6 +92,11 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
 
                   <span className="flex-1">{item.name}</span>
 
+                  {/* {item.name === 'Assignments' && (
+                    <span className="bg-[#FF5A2C] text-white text-xs px-2 py-0.5 rounded-full">
+                      10
+                    </span>
+                  )} */}
                 </Link>
               );
             })}
