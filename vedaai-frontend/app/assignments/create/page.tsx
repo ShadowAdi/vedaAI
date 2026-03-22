@@ -227,57 +227,87 @@ export default function CreateAssignmentPage() {
                 name="dueDate"
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <div className="relative" ref={calendarRef}>
+                  <div className="relative w-full" ref={calendarRef}>
                     <div
                       onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                      className="flex items-center w-full px-5 py-3 border border-gray-300 rounded-full cursor-pointer hover:border-gray-400 transition-colors"
+                      className="flex items-center justify-between w-full px-5 py-3 border border-gray-300 rounded-xl cursor-pointer hover:border-gray-400 bg-white transition-all duration-200 hover:shadow-sm"
                     >
-                      <span className={`flex-1 text-sm ${value ? 'text-gray-900' : 'text-gray-400'}`}>
+                      <span className={`text-sm font-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}>
                         {value ? format(value, 'dd-MM-yyyy') : 'DD-MM-YYYY'}
                       </span>
-                      <Calendar className="w-5 h-5 text-gray-400" />
+                      <Calendar className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isCalendarOpen ? 'rotate-180' : ''}`} />
                     </div>
 
                     {isCalendarOpen && (
-                      <div className="absolute z-50 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 p-4">
-                        <DayPicker
-                          mode="single"
-                          selected={value}
-                          onSelect={(date) => {
-                            if (date) {
-                              onChange(date);
-                              setIsCalendarOpen(false);
-                            }
-                          }}
-                          disabled={{ before: new Date() }}
-                          classNames={{
-                            root: 'flex justify-center',
-                            month: 'space-y-4',
-                            caption: 'flex justify-center pt-1 relative items-center',
-                            caption_label: 'text-sm font-medium text-gray-900',
-                            nav: 'space-x-1 flex items-center',
-                            nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
-                            nav_button_previous: 'absolute left-1',
-                            nav_button_next: 'absolute right-1',
-                            table: 'w-full border-collapse space-y-1',
-                            head_row: 'flex',
-                            head_cell: 'text-gray-500 rounded-md w-9 font-normal text-[0.8rem]',
-                            row: 'flex w-full mt-2',
-                            cell: 'text-center text-sm p-0 relative [&:has([aria-selected])]:bg-gray-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
-                            day: 'h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
-                            day_selected: 'bg-gray-900 text-white hover:bg-gray-800 focus:bg-gray-800',
-                            day_today: 'bg-gray-100 text-gray-900',
-                            day_outside: 'text-gray-400 opacity-50',
-                            day_disabled: 'text-gray-400 opacity-50 cursor-not-allowed',
-                          }}
-                        />
+                      <div className="absolute z-50 mt-3 w-full sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="space-y-4">
+                          <DayPicker
+                            mode="single"
+                            selected={value}
+                            onSelect={(date) => {
+                              if (date) {
+                                onChange(date);
+                                setIsCalendarOpen(false);
+                              }
+                            }}
+                            disabled={{ before: new Date() }}
+                            classNames={{
+                              root: 'w-full',
+                              month: 'space-y-4 w-full',
+                              caption: 'flex justify-between items-center mb-4 relative px-0',
+                              caption_label: 'text-base font-bold text-gray-900',
+                              nav: 'flex gap-2 absolute right-0 top-0',
+                              nav_button: 'h-9 w-9 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-150 flex items-center justify-center opacity-100',
+                              nav_button_previous: 'hover:bg-gray-200',
+                              nav_button_next: 'hover:bg-gray-200',
+                              table: 'w-full border-collapse',
+                              head_row: 'grid grid-cols-7 gap-2 mb-3',
+                              head_cell: 'text-xs font-bold text-gray-600 uppercase text-center h-8 flex items-center justify-center',
+                              row: 'grid grid-cols-7 gap-2',
+                              cell: 'text-center text-sm p-0 relative h-9 flex items-center justify-center focus-within:relative focus-within:z-20',
+                              day: 'h-9 w-full flex items-center justify-center font-medium rounded-lg transition-all duration-150 hover:bg-blue-50 cursor-pointer text-gray-900',
+                              day_selected: 'bg-gradient-to-r from-gray-900 to-gray-800 text-white hover:from-gray-800 hover:to-gray-700 shadow-md font-bold',
+                              day_today: 'bg-blue-100 text-gray-900 font-bold ring-2 ring-blue-300',
+                              day_outside: 'text-gray-300 opacity-60 cursor-not-allowed',
+                              day_disabled: 'text-gray-300 opacity-60 cursor-not-allowed',
+                            }}
+                          />
+                          <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
+                            <button
+                              type="button"
+                              onClick={() => setIsCalendarOpen(false)}
+                              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-150"
+                            >
+                              Cancel
+                            </button>
+                            {value && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  onChange(undefined);
+                                  setIsCalendarOpen(false);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-150"
+                              >
+                                Clear
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setIsCalendarOpen(false)}
+                              className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors duration-150"
+                            >
+                              Done
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
               />
               {errors.dueDate && (
-                <p className="mt-1 text-sm text-red-600">{errors.dueDate.message}</p>
+                <p className="mt-2 text-sm text-red-600 font-medium">{errors.dueDate.message}</p>
               )}
             </div>
 
